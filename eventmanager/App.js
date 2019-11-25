@@ -1,19 +1,36 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { StyleSheet } from "react-native";
+import { createStackNavigator } from "react-navigation-stack";
+import { createAppContainer } from "react-navigation";
+import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import HomeScreen from "./components/HomeScreen";
+import Login from "./components/Login";
+import store from "./Store";
+import { Provider } from "react-redux";
 
-export default function App() {
+const theme = {
+  ...DefaultTheme,
+  roundness: 5,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: "#d11919",
+    accent: "#e3d219"
+  }
+};
+
+export default App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
+    <Provider store={store}>
+      <PaperProvider theme={theme}>
+        <AppContainer />
+      </PaperProvider>
+    </Provider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+const AppStack = createStackNavigator({
+  Home: { screen: HomeScreen },
+  Login: { screen: Login }
 });
+
+const AppContainer = createAppContainer(AppStack);
