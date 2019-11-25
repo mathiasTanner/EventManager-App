@@ -11,10 +11,10 @@ export default createStore(
     token: ""
     //user: {}
   },
-  window.__REDUX_DEVTOOLS_EXTENSION__ &&
-    window.__REDUX_DEVTOOLS_EXTENSION__(applyMiddleware(...middleware))
-  //composeWithDevTools(
+  applyMiddleware(...middleware)
+  //window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  /* composeWithDevTools(
 
   // other store enhancers if any
-  //)
+  ) */
 );

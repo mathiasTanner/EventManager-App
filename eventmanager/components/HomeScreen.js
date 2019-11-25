@@ -16,7 +16,7 @@ const HomeScreen = props => {
   return (
     <View style={styles.container}>
       {props.token == "" ? (
-        <Login setUser={setUser} />
+        <Login />
       ) : (
         <Text>Home page token: {props.token}</Text>
       )}

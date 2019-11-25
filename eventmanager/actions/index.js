@@ -1,46 +1,37 @@
 import axios from "axios";
 import { GET_TOKEN } from "../Types";
 import { login } from "../urls/ApiUrls";
+import * as qs from "query-string";
 
 //to fetch the token of a registered user
 export const fetchToken = (username, passwordHash) => {
+  const config = {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" }
+  };
+  const requestBody = {
+    username: username,
+    passwordHash: passwordHash
+  };
+
   return dispatch => {
     return axios
-      .post(login, {
-        username: username,
-        passwordHash: passwordHash
-      })
+      .post(login, qs.stringify(requestBody), config)
       .then(response => response.data)
       .then(data => {
-        dispatch(connect(data));
+        console.log(data);
+        /* if (data == "no token found") {
+          dispatch(connection("idError"));
+        } */
+        dispatch(connection(data));
       })
       .catch(error => {
-        alert("error", error);
+        console.log(error.message);
+        alert(error.message, error);
       });
   };
 };
 
-/* export const fetchToken = (username, passwordHash) => {
-  return (action = dispatch => {
-    dispatch({ type: GET_TOKEN });
-
-    const request = axio.post(login, {
-      username: username,
-      passwordHash: passwordHash
-    });
-
-    return request
-      .then(response => response.data)
-      .then(data => {
-        dispatch(connect(data));
-      })
-      .catch(error => {
-        alert("error", error);
-      });
-  });
-}; */
-
-export const connect = data => {
+export const connection = data => {
   return {
     type: GET_TOKEN,
     payload: data

@@ -30,7 +30,8 @@ const Login = props => {
 
   const passwordHash = credentials => {
     //TODO set up password hasher
-    props.getToken(credentials.username, credentials.passwordHash);
+
+    props.getToken(credentials.username, credentials.password);
   };
 
   return (
