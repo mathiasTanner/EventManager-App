@@ -9,6 +9,7 @@ import {
 import { Title, TextInput, Text, Button } from "react-native-paper";
 import { connect } from "react-redux";
 import { fetchToken } from "../actions";
+import { red } from "ansi-colors";
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
@@ -84,6 +85,22 @@ const Login = props => {
             />
           </TouchableOpacity>
         </View>
+        {props.error ? (
+          <Text style={styles.errorMsg}>
+            Erreur! pseudo ou mot de passe erroné.
+          </Text>
+        ) : null}
+        <View>
+          <Button
+            mode="text"
+            style={styles.buttonPswd}
+            onPress={() => {
+              //TODO password forgotten component
+            }}
+          >
+            Mot de passe oublié
+          </Button>
+        </View>
         <Button
           mode="contained"
           style={styles.button}
@@ -93,13 +110,15 @@ const Login = props => {
         >
           Se Connecter
         </Button>
-        <Button mode="contained" style={styles.button}>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={() => {
+            //TODO Register Component
+          }}
+        >
           S'enregistrer
         </Button>
-        <Text>
-          log: username= {credentials.username}, password={" "}
-          {credentials.password}
-        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -145,5 +164,12 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 5
+  },
+  buttonPswd: {
+    marginTop: 5,
+    marginBottom: 20
+  },
+  errorMsg: {
+    color: "red"
   }
 });

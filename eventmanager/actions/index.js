@@ -19,9 +19,6 @@ export const fetchToken = (username, passwordHash) => {
       .then(response => response.data)
       .then(data => {
         console.log(data);
-        /* if (data == "no token found") {
-          dispatch(connection("idError"));
-        } */
         dispatch(connection(data));
       })
       .catch(error => {
