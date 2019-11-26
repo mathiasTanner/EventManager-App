@@ -6,10 +6,9 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity
 } from "react-native";
-import { Title, TextInput, Text, Button } from "react-native-paper";
+import { Title, TextInput, Text, Button, HelperText } from "react-native-paper";
 import { connect } from "react-redux";
 import { fetchToken } from "../actions";
-import { red } from "ansi-colors";
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
@@ -19,28 +18,21 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 };
 
 const Login = props => {
+  const { navigate } = props.navigation;
+
   const [credentials, setCredentials] = useState({
     username: "",
     password: ""
   });
-  const [passwordHidden, setPasswordHidde] = useState(true);
-
-  const managePasswordVisibility = () => {
-    setPasswordHidde(!passwordHidden);
-  };
+  const [passwordHidden, setPasswordHidden] = useState(true);
 
   const passwordHash = credentials => {
     //TODO set up password hasher
-
     props.getToken(credentials.username, credentials.password);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior="padding v "
-      enabled
-    >
+    <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
       <View style={styles.title}>
         <Image
           style={{ flex: 1, height: undefined, width: undefined }}
@@ -62,7 +54,6 @@ const Login = props => {
           <TextInput
             label="Mot de passe"
             mode="outlined"
-            underlineColor="red"
             secureTextEntry={passwordHidden}
             value={credentials.password}
             style={styles.textBox}
@@ -73,7 +64,9 @@ const Login = props => {
           <TouchableOpacity
             activeOpacity={0.8}
             style={styles.visibilityBtn}
-            onPress={managePasswordVisibility}
+            onPress={() => {
+              setPasswordHidden(!passwordHidden);
+            }}
           >
             <Image
               source={
@@ -86,9 +79,9 @@ const Login = props => {
           </TouchableOpacity>
         </View>
         {props.error ? (
-          <Text style={styles.errorMsg}>
+          <HelperText type="error" visible={props.error}>
             Erreur! pseudo ou mot de passe erroné.
-          </Text>
+          </HelperText>
         ) : null}
         <View>
           <Button
@@ -114,7 +107,7 @@ const Login = props => {
           mode="contained"
           style={styles.button}
           onPress={() => {
-            //TODO Register Component
+            navigate("Register");
           }}
         >
           S'enregistrer
@@ -128,8 +121,10 @@ export default connect(null, mapDispatchToProps)(Login);
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: "20%",
     flex: 1,
     alignItems: "center",
+    alignSelf: "stretch",
     justifyContent: "center",
     flexDirection: "column"
   },
