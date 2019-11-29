@@ -38,7 +38,8 @@ const Register = props => {
   const passwordHash = () => {
     let pass = sha256(userInfo.passwordHash);
     console.log(userInfo.passwordHash);
-
+    console.log("hashed pass: ");
+    console.log("wtf");
     console.log(pass);
 
     //TODO set up password hasher
