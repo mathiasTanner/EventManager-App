@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scrollview";
+import { sha256 } from "js-sha256";
 import {
   StyleSheet,
   View,
@@ -20,8 +20,8 @@ import {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    getToken: (username, passwordHash) =>
-      dispatch(fetchToken(username, passwordHash))
+    createUser: (username, passwordHash, mail, hascar) =>
+      dispatch(createUser(username, passwordHash, mail, hascar))
   };
 };
 
@@ -34,6 +34,21 @@ const Register = props => {
     hasCar: false
   });
   const [passwordHidden, setPasswordHidden] = useState(true);
+
+  const passwordHash = () => {
+    let pass = sha256(userInfo.passwordHash);
+    console.log(userInfo.passwordHash);
+
+    console.log(pass);
+
+    //TODO set up password hasher
+    /*  props.createUser(
+      userInfo.username,
+      userInfo.passwordHash,
+      userInfo.mail,
+      userInfo.hasCar
+    ); */
+  };
 
   return (
     <View style={styles.container}>
@@ -140,7 +155,7 @@ const Register = props => {
                 mode="contained"
                 style={styles.button}
                 onPress={() => {
-                  //TODO
+                  passwordHash();
                 }}
               >
                 S'enregistrer

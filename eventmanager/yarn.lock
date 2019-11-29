@@ -4329,6 +4329,11 @@ react-native-gesture-handler@~1.3.0:
     invariant "^2.2.2"
     prop-types "^15.5.10"
 
+react-native-keyboard-aware-scrollview@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-keyboard-aware-scrollview/-/react-native-keyboard-aware-scrollview-2.1.0.tgz#418a6b868f4cf2f9d28e77914f11ecbf8ae8e556"
+  integrity sha512-XfWozWFPhdecfxN+wuqERX3mCGDrAim5siC6TWg3Qw7wK/zlwIwe1UIsHDNOQCzf9oIh0SkZXvoOFsMrnyIVmQ==
+
 react-native-maps@~0.25.0:
   version "0.25.0"
   resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-0.25.0.tgz#81bc51eb50e33811a9e1c345cc48869413ead67d"
@@ -4368,6 +4373,11 @@ react-native-safe-area-view@^0.14.1:
   integrity sha512-tOxHGQUN83MTmQB4ghoQkibqOdGiX4JQEmeyEv96MKWO/x8T2PJv84ECUos9hD3blPRQwVwSpAid1PPPhrVEaw==
   dependencies:
     debounce "^1.2.0"
+
+react-native-sha256@^1.3.6:
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/react-native-sha256/-/react-native-sha256-1.3.6.tgz#980cf3d44b1793871f32e17ddcbd8848b7be370f"
+  integrity sha512-uS77ZQn9Z1l7ZYbZkxDsS8oP8VhO0pXqC3Os0rI7HLYG2PUiThMg/sbjskzsl3KZ2Cfvw9mA7RE86hHxGQ63QA==
 
 react-native-view-shot@2.6.0:
   version "2.6.0"

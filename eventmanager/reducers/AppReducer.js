@@ -1,9 +1,9 @@
 import { GET_TOKEN } from "../Types";
 
-export const TokenReducer = (state = [], action) => {
+export const AppReducer = (state = [], action) => {
   switch (action.type) {
     case GET_TOKEN:
-      return action.payload;
+      return { ...state, token: action.payload };
     default:
       return state;
   }

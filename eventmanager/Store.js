@@ -8,13 +8,17 @@ const middleware = [thunk];
 export default createStore(
   reducers,
   {
-    token: ""
-    //user: {}
+    app: {
+      token: ""
+    },
+    events: [],
+    user: {}
   },
-  applyMiddleware(...middleware)
-  //window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-  /* composeWithDevTools(
 
-  // other store enhancers if any
-  ) */
+  composeWithDevTools(
+    applyMiddleware(...middleware)
+
+    // other store enhancers if any
+  )
 );
+window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();

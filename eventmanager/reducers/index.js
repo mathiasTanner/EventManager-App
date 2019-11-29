@@ -1,6 +1,10 @@
 import { combineReducers } from "redux";
-import { TokenReducer } from "./TokenReducer";
+import { AppReducer } from "./AppReducer";
+import { UserReducer } from "./UserReducer";
+import { EventReducer } from "./EventReducer";
 
 export default combineReducers({
-  token: TokenReducer
+  app: AppReducer,
+  events: EventReducer,
+  user: UserReducer
 });

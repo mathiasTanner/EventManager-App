@@ -4,14 +4,13 @@ import { connect } from "react-redux";
 import Login from "./Login";
 
 const mapStateToProps = (state, ownProps) => {
-  return { token: state.token };
+  return { token: state.app.token };
 };
 
 const HomeScreen = props => {
   const { navigate } = props.navigation;
 
   const [user, setUser] = useState({ username: "", password: "" });
-  const [test, setTest] = useState(true);
 
   return (
     <View style={styles.container}>
