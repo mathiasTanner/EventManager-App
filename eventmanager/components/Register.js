@@ -31,24 +31,75 @@ const Register = props => {
     secondPass: "",
     passwordHash: "",
     mail: "",
-    hasCar: false
+    hasCar: false,
+    isNotValid: true
   });
+  const [isErrMsgVisible, setIsErrMsgVisible] = useState({
+    pswdLength: false,
+    pswdMatch: false,
+    mailValid: false
+  });
+  const [test, setTest] = useState(false);
   const [passwordHidden, setPasswordHidden] = useState(true);
 
   const passwordHash = () => {
     let pass = sha256(userInfo.passwordHash);
-    console.log(userInfo.passwordHash);
-    console.log("hashed pass: ");
-    console.log("wtf");
-    console.log(pass);
 
-    //TODO set up password hasher
     /*  props.createUser(
       userInfo.username,
       userInfo.passwordHash,
       userInfo.mail,
       userInfo.hasCar
     ); */
+  };
+
+  const fieldValidator = () => {
+    console.log("passwordHash:");
+    console.log(userInfo.passwordHash);
+    console.log(
+      userInfo.passwordHash !== "" && userInfo.passwordHash.length < 8
+    );
+    /* userInfo.passwordHash !== "" && userInfo.passwordHash.length < 8
+      ? (console.log("test"),
+        setIsErrMsgVisible({
+          ...isErrMsgVisible,
+          pswdLength: true
+        }))
+      : setIsErrMsgVisible({
+          ...isErrMsgVisible,
+          pswdLength: false
+        }); */
+    if (userInfo.passwordHash !== "" && userInfo.passwordHash.length < 8) {
+      console.log("INSIDE CONDITION");
+      setIsErrMsgVisible({ ...isErrMsgVisible, mailValid: true });
+      setTest(true);
+    } else {
+      setIsErrMsgVisible({
+        ...isErrMsgVisible,
+        pswdLength: false
+      });
+    }
+    console.log(isErrMsgVisible.mailValid);
+
+    //console.log(isErrMsgVisible.pswdLength);
+    userInfo.secondPass !== "" && userInfo.passwordHash !== userInfo.secondPass
+      ? setIsErrMsgVisible({
+          ...isErrMsgVisible,
+          pswdMatch: true
+        })
+      : setIsErrMsgVisible({
+          ...isErrMsgVisible,
+          pswdMatch: false
+        });
+    !userInfo.mail.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)
+      ? setIsErrMsgVisible({
+          ...isErrMsgVisible,
+          mailValid: true
+        })
+      : setIsErrMsgVisible({
+          ...isErrMsgVisible,
+          mailValid: false
+        });
   };
 
   return (
@@ -87,8 +138,17 @@ const Register = props => {
               style={styles.textBox}
               onChangeText={pass => {
                 setUserInfo({ ...userInfo, passwordHash: pass });
+                fieldValidator();
+              }}
+              onBlur={() => {
+                fieldValidator();
               }}
             />
+            {isErrMsgVisible.pswdLength ? (
+              <HelperText type="error" visible={true}>
+                Le mot de passe doit faire au moins 8 caractères
+              </HelperText>
+            ) : null}
             <View style={styles.passView}>
               <TextInput
                 label="Confirmez le Mot de passe"
@@ -98,6 +158,7 @@ const Register = props => {
                 style={styles.textBox}
                 onChangeText={pass => {
                   setUserInfo({ ...userInfo, secondPass: pass });
+                  fieldValidator();
                 }}
               />
               <TouchableOpacity
@@ -117,25 +178,24 @@ const Register = props => {
                 />
               </TouchableOpacity>
             </View>
-            {userInfo.passwordHash !== "" &&
-            userInfo.passwordHash.length < 8 ? (
-              <HelperText type="error" visible={true}>
-                Le mot de passe doit faire au moins 8 caractères
-              </HelperText>
-            ) : userInfo.passwordHash !== userInfo.secondPass ? (
+            {isErrMsgVisible.pswdMatch ? (
               <HelperText type="error" visible={true}>
                 Les mots de passe ne correspondent pas
               </HelperText>
             ) : null}
+            {
+              //TODO put a test to see if the mail is already taken
+            }
             <TextInput
               label="E-Mail"
               mode="outlined"
               value={userInfo.mail}
               onChangeText={mail => {
                 setUserInfo({ ...userInfo, mail: mail });
+                fieldValidator();
               }}
             />
-            {!userInfo.mail.includes("@") && userInfo.mail !== "" ? (
+            {isErrMsgVisible.mailValid ? (
               <HelperText type="error" visible={true}>
                 Ce mail n'est pas valide
               </HelperText>
@@ -158,6 +218,7 @@ const Register = props => {
                 onPress={() => {
                   passwordHash();
                 }}
+                disabled={userInfo.isNotValid}
               >
                 S'enregistrer
               </Button>
