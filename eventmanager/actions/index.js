@@ -1,6 +1,11 @@
 import axios from "axios";
-import { GET_TOKEN, REGISTER_USER } from "../Types";
-import { login, register } from "../urls/ApiUrls";
+import {
+  GET_TOKEN,
+  REGISTER_USER,
+  SHOW_LOADING,
+  GET_USER_BY_USERNAME
+} from "../Types";
+import { login, register, userByUsername } from "../urls/ApiUrls";
 import * as qs from "query-string";
 
 const config = {
@@ -20,6 +25,9 @@ export const fetchToken = (username, passwordHash) => {
       .then(data => {
         console.log(data);
         dispatch(connection(data));
+        if (data !== "no token found") {
+          fetchUser(username, data);
+        }
       })
       .catch(error => {
         console.log(error.message);
@@ -31,6 +39,33 @@ export const fetchToken = (username, passwordHash) => {
 const connection = data => {
   return {
     type: GET_TOKEN,
+    payload: data
+  };
+};
+
+//Get a user by username
+export const fetchUser = (username, token) => {
+  let authConfig = {
+    headers: { Authorization: "bearer " + token }
+  };
+  console.log(userByUsername + username);
+
+  return axios
+    .post(userByUsername + username, null, authConfig)
+    .then(response => response.data)
+    .then(data => {
+      console.log(data);
+      dispatch(getUser(data));
+    })
+    .catch(error => {
+      console.log(error.message);
+      alert(error.message, error);
+    });
+};
+
+const getUser = data => {
+  return {
+    type: GET_USER_BY_USERNAME,
     payload: data
   };
 };
@@ -51,6 +86,7 @@ export const createUser = (username, passwordHash, mail, hasCar) => {
       .then(response => response.data)
       .then(data => {
         console.log(data);
+        dispatch(connection(data.token));
         dispatch(registration(data));
       })
       .catch(error => {
@@ -64,5 +100,14 @@ const registration = data => {
   return {
     type: REGISTER_USER,
     payload: data
+  };
+};
+
+// Show the load screen
+
+export const showLoad = isVisible => {
+  return {
+    type: SHOW_LOADING,
+    payload: isVisible
   };
 };

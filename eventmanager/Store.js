@@ -9,10 +9,11 @@ export default createStore(
   reducers,
   {
     app: {
-      token: ""
+      token: "",
+      isLoadingVisible: false
     },
     events: [],
-    user: {}
+    user: null
   },
 
   composeWithDevTools(

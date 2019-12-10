@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import Login from "./Login";
 
 const mapStateToProps = (state, ownProps) => {
-  return { token: state.app.token };
+  return { token: state.app.token, user: state.user };
 };
 
 const HomeScreen = props => {
