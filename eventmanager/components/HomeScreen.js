@@ -1,32 +1,53 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Dimensions } from "react-native";
 import { connect } from "react-redux";
 import Login from "./Login";
+import Map from "./Map";
+import { fetchEvents, fetchUser } from "../actions";
 
 const mapStateToProps = (state, ownProps) => {
-  return { token: state.app.token };
+  return { token: state.app.token, user: state.user };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    getEvents: token => {
+      dispatch(fetchEvents(token));
+    },
+    getUserFromToken: (token, username) => {
+      dispatch(fetchUser(token, username));
+    }
+  };
 };
 
 const HomeScreen = props => {
   const { navigate } = props.navigation;
 
-  const [user, setUser] = useState({ username: "", password: "" });
+  useEffect(() => {
+    if (props.token !== "no token found" && props.token !== "") {
+      props.getEvents(props.token);
+    }
+    if (props.user !== null && props.user.passwordHash == null) {
+      props.getUserFromToken(props.token, props.user.username);
+    }
+  }, [props.token, props.user]);
 
   return (
     <View style={styles.container}>
       {props.token == "" ? (
         <Login error={false} navigation={props.navigation} />
-      ) : //<Login error={false} navigation={props.navigation} />
-      props.token == "no token found" ? (
+      ) : props.token == "no token found" ? (
         <Login error={true} navigation={props.navigation} />
       ) : (
-        <Text>Home page token: {props.token}</Text>
+        <View style={styles.mainView}>
+          <Map />
+        </View>
       )}
     </View>
   );
 };
 
-export default connect(mapStateToProps)(HomeScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
 
 const styles = StyleSheet.create({
   container: {
@@ -34,5 +55,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFF",
     alignItems: "center",
     justifyContent: "center"
+  },
+  mainView: {
+    width: Math.round(Dimensions.get("window").width),
+    height: Math.round(Dimensions.get("window").height)
   }
 });

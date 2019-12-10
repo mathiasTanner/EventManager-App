@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { sha256 } from "js-sha256";
-import { createUser } from "../actions";
+import { createUser, showLoad } from "../actions";
+import LoadingScreen from "./LoadingScreen";
 import {
   StyleSheet,
   View,
@@ -16,14 +17,22 @@ import {
   Text,
   Button,
   Switch,
-  HelperText
+  HelperText,
+  Portal
 } from "react-native-paper";
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     register: (username, passwordHash, mail, hascar) =>
-      dispatch(createUser(username, passwordHash, mail, hascar))
+      dispatch(createUser(username, passwordHash, mail, hascar)),
+    showLoad: isVisible => {
+      dispatch(showLoad(isVisible));
+    }
   };
+};
+
+const mapStateToProps = (state, ownProps) => {
+  return { token: state.app.token, user: state.user };
 };
 
 const Register = props => {
@@ -40,11 +49,17 @@ const Register = props => {
   const [isInfoNotValid, setIsInfoNotValid] = useState(true);
   const [passwordHidden, setPasswordHidden] = useState(true);
 
+  useEffect(() => {
+    props.showLoad(false);
+    if (props.user !== null) {
+      props.navigation.goBack();
+    }
+  }, [props.user]); // Only re-run the effect if user changes
 
   const createUser = () => {
     let pass = sha256(userInfo.passwordHash);
     props.register(userInfo.username, pass, userInfo.mail, userInfo.hasCar);
-    
+    props.showLoad(true);
   };
 
   const fieldValidator = () => {
@@ -57,7 +72,7 @@ const Register = props => {
       ? setPswdMatchVisible(true)
       : setPswdMatchVisible(false);
     userInfo.mail !== "" &&
-    !userInfo.mail.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)
+    !userInfo.mail.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{1,})$/i)
       ? setMailValidVisible(true)
       : setMailValidVisible(false);
 
@@ -76,144 +91,147 @@ const Register = props => {
   };
 
   return (
-    <View style={styles.container}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        enabled
-        keyboardVerticalOffset={100}
-      >
-        <View style={styles.titleView}>
-          <Image
-            style={styles.img}
-            source={require("../assets/militia_fibule.png")}
-            resizeMode="contain"
-          />
-          <View style={styles.title}>
-            <Title>Rentrez vos données:</Title>
+    <Portal.Host>
+      <LoadingScreen />
+      <View style={styles.container}>
+        <KeyboardAvoidingView
+          behavior="padding"
+          enabled
+          keyboardVerticalOffset={100}
+        >
+          <View style={styles.titleView}>
+            <Image
+              style={styles.img}
+              source={require("../assets/militia_fibule.png")}
+              resizeMode="contain"
+            />
+            <View style={styles.title}>
+              <Title>Rentrez vos données:</Title>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.form}>
-          <ScrollView>
-            <TextInput
-              label="Pseudo"
-              mode="outlined"
-              value={userInfo.username}
-              onChangeText={name => {
-                setUserInfo({ ...userInfo, username: name });
-                fieldValidator();
-              }}
-              onBlur={() => {
-                fieldValidator();
-              }}
-            />
-            <TextInput
-              label="Mot de passe"
-              mode="outlined"
-              secureTextEntry={passwordHidden}
-              value={userInfo.passwordHash}
-              onChangeText={pass => {
-                setUserInfo({ ...userInfo, passwordHash: pass });
-                fieldValidator();
-              }}
-              onBlur={() => {
-                fieldValidator();
-              }}
-            />
-            {pswdLengthVisible ? (
-              <HelperText type="error" visible={true}>
-                Le mot de passe doit faire au moins 8 caractères
-              </HelperText>
-            ) : null}
-            <View style={styles.passView}>
+          <View style={styles.form}>
+            <ScrollView>
               <TextInput
-                label="Confirmez le Mot de passe"
+                label="Pseudo"
                 mode="outlined"
-                secureTextEntry={passwordHidden}
-                value={userInfo.secondPass}
-                style={styles.textBox}
-                onChangeText={pass => {
-                  setUserInfo({ ...userInfo, secondPass: pass });
+                value={userInfo.username}
+                onChangeText={name => {
+                  setUserInfo({ ...userInfo, username: name });
                   fieldValidator();
                 }}
                 onBlur={() => {
                   fieldValidator();
                 }}
               />
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={styles.visibilityBtn}
-                onPress={() => {
-                  setPasswordHidden(!passwordHidden);
+              <TextInput
+                label="Mot de passe"
+                mode="outlined"
+                secureTextEntry={passwordHidden}
+                value={userInfo.passwordHash}
+                onChangeText={pass => {
+                  setUserInfo({ ...userInfo, passwordHash: pass });
+                  fieldValidator();
                 }}
-              >
-                <Image
-                  source={
-                    passwordHidden
-                      ? require("../assets/hide.png")
-                      : require("../assets/view.png")
-                  }
-                  style={styles.btnImage}
-                />
-              </TouchableOpacity>
-            </View>
-            {pswdMatchVisible ? (
-              <HelperText type="error" visible={true}>
-                Les mots de passe ne correspondent pas
-              </HelperText>
-            ) : null}
-            {
-              //TODO put a test to see if the mail is already taken
-            }
-            <TextInput
-              label="E-Mail"
-              mode="outlined"
-              value={userInfo.mail}
-              onChangeText={mail => {
-                setUserInfo({ ...userInfo, mail: mail });
-                fieldValidator();
-              }}
-              onBlur={() => {
-                fieldValidator();
-              }}
-            />
-            {mailValidVisible ? (
-              <HelperText type="error" visible={true}>
-                Ce mail n'est pas valide
-              </HelperText>
-            ) : null}
-
-            <View style={styles.switchView}>
-              <Text>Avez-vous une voiture?</Text>
-              <Switch
-                value={userInfo.hasCar}
-                style={styles.switch}
-                onValueChange={hasCar => {
-                  setUserInfo({ ...userInfo, hasCar });
+                onBlur={() => {
                   fieldValidator();
                 }}
               />
-            </View>
-            <View style={styles.buttonview}>
-              <Button
-                mode="contained"
-                style={styles.button}
-                onPress={() => {
-                  createUser();
+              {pswdLengthVisible ? (
+                <HelperText type="error" visible={true}>
+                  Le mot de passe doit faire au moins 8 caractères
+                </HelperText>
+              ) : null}
+              <View style={styles.passView}>
+                <TextInput
+                  label="Confirmez le Mot de passe"
+                  mode="outlined"
+                  secureTextEntry={passwordHidden}
+                  value={userInfo.secondPass}
+                  style={styles.textBox}
+                  onChangeText={pass => {
+                    setUserInfo({ ...userInfo, secondPass: pass });
+                    fieldValidator();
+                  }}
+                  onBlur={() => {
+                    fieldValidator();
+                  }}
+                />
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.visibilityBtn}
+                  onPress={() => {
+                    setPasswordHidden(!passwordHidden);
+                  }}
+                >
+                  <Image
+                    source={
+                      passwordHidden
+                        ? require("../assets/hide.png")
+                        : require("../assets/view.png")
+                    }
+                    style={styles.btnImage}
+                  />
+                </TouchableOpacity>
+              </View>
+              {pswdMatchVisible ? (
+                <HelperText type="error" visible={true}>
+                  Les mots de passe ne correspondent pas
+                </HelperText>
+              ) : null}
+              {
+                //TODO put a test to see if the mail is already taken
+              }
+              <TextInput
+                label="E-Mail"
+                mode="outlined"
+                value={userInfo.mail}
+                onChangeText={mail => {
+                  setUserInfo({ ...userInfo, mail: mail });
+                  fieldValidator();
                 }}
-                disabled={isInfoNotValid}
-              >
-                S'enregistrer
-              </Button>
-            </View>
-          </ScrollView>
-        </View>
-      </KeyboardAvoidingView>
-    </View>
+                onBlur={() => {
+                  fieldValidator();
+                }}
+              />
+              {mailValidVisible ? (
+                <HelperText type="error" visible={true}>
+                  Ce mail n'est pas valide
+                </HelperText>
+              ) : null}
+
+              <View style={styles.switchView}>
+                <Text>Avez-vous une voiture?</Text>
+                <Switch
+                  value={userInfo.hasCar}
+                  style={styles.switch}
+                  onValueChange={hasCar => {
+                    setUserInfo({ ...userInfo, hasCar });
+                    fieldValidator();
+                  }}
+                />
+              </View>
+              <View style={styles.buttonview}>
+                <Button
+                  mode="contained"
+                  style={styles.button}
+                  onPress={() => {
+                    createUser();
+                  }}
+                  disabled={isInfoNotValid}
+                >
+                  S'enregistrer
+                </Button>
+              </View>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
+    </Portal.Host>
   );
 };
 
-export default connect(null, mapDispatchToProps)(Register);
+export default connect(mapStateToProps, mapDispatchToProps)(Register);
 
 const styles = StyleSheet.create({
   container: {

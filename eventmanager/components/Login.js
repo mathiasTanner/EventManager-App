@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import LoadingScreen from "./LoadingScreen";
 import {
   StyleSheet,
   View,
@@ -6,15 +7,30 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity
 } from "react-native";
-import { Title, TextInput, Text, Button, HelperText } from "react-native-paper";
+import {
+  Title,
+  TextInput,
+  Text,
+  Button,
+  HelperText,
+  Portal
+} from "react-native-paper";
 import { connect } from "react-redux";
-import { fetchToken } from "../actions";
+import { fetchToken, showLoad } from "../actions";
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    getToken: (username, passwordHash) =>
-      dispatch(fetchToken(username, passwordHash))
+    getToken: (username, passwordHash) => {
+      dispatch(fetchToken(username, passwordHash));
+    },
+    showLoad: isVisible => {
+      dispatch(showLoad(isVisible));
+    }
   };
+};
+
+const mapStateToProps = (state, ownProps) => {
+  return { token: state.app.token, user: state.user };
 };
 
 const Login = props => {
@@ -26,98 +42,106 @@ const Login = props => {
   });
   const [passwordHidden, setPasswordHidden] = useState(true);
 
+  useEffect(() => {
+    props.showLoad(false);
+  }, [props.token]); // Only re-run the effect if token changes
+
   const passwordHash = credentials => {
     //TODO set up password hasher
     props.getToken(credentials.username, credentials.password);
+    props.showLoad(true);
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
-      <View style={styles.title}>
-        <Image
-          style={{ flex: 1, height: undefined, width: undefined }}
-          source={require("../assets/militia_fibule.png")}
-          resizeMode="contain"
-        />
-        <Title>Militia Genevae Event Manager</Title>
-      </View>
-      <View style={styles.form}>
-        <TextInput
-          label="Pseudo"
-          mode="outlined"
-          value={credentials.username}
-          onChangeText={name => {
-            setCredentials({ ...credentials, username: name });
-          }}
-        />
-        <View style={styles.passView}>
+    <Portal.Host>
+      <LoadingScreen />
+      <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+        <View style={styles.title}>
+          <Image
+            style={{ flex: 1, height: undefined, width: undefined }}
+            source={require("../assets/militia_fibule.png")}
+            resizeMode="contain"
+          />
+          <Title>Militia Genevae Event Manager</Title>
+        </View>
+        <View style={styles.form}>
           <TextInput
-            label="Mot de passe"
+            label="Pseudo"
             mode="outlined"
-            secureTextEntry={passwordHidden}
-            value={credentials.password}
-            style={styles.textBox}
-            onChangeText={pass => {
-              setCredentials({ ...credentials, password: pass });
+            value={credentials.username}
+            onChangeText={name => {
+              setCredentials({ ...credentials, username: name });
             }}
           />
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.visibilityBtn}
-            onPress={() => {
-              setPasswordHidden(!passwordHidden);
-            }}
-          >
-            <Image
-              source={
-                passwordHidden
-                  ? require("../assets/hide.png")
-                  : require("../assets/view.png")
-              }
-              style={styles.btnImage}
+          <View style={styles.passView}>
+            <TextInput
+              label="Mot de passe"
+              mode="outlined"
+              secureTextEntry={passwordHidden}
+              value={credentials.password}
+              style={styles.textBox}
+              onChangeText={pass => {
+                setCredentials({ ...credentials, password: pass });
+              }}
             />
-          </TouchableOpacity>
-        </View>
-        {props.error ? (
-          <HelperText type="error" visible={props.error}>
-            Erreur! pseudo ou mot de passe erroné.
-          </HelperText>
-        ) : null}
-        <View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.visibilityBtn}
+              onPress={() => {
+                setPasswordHidden(!passwordHidden);
+              }}
+            >
+              <Image
+                source={
+                  passwordHidden
+                    ? require("../assets/hide.png")
+                    : require("../assets/view.png")
+                }
+                style={styles.btnImage}
+              />
+            </TouchableOpacity>
+          </View>
+          {props.error ? (
+            <HelperText type="error" visible={props.error}>
+              Erreur! pseudo ou mot de passe erroné.
+            </HelperText>
+          ) : null}
+          <View>
+            <Button
+              mode="text"
+              style={styles.buttonPswd}
+              onPress={() => {
+                //TODO password forgotten component
+              }}
+            >
+              Mot de passe oublié
+            </Button>
+          </View>
           <Button
-            mode="text"
-            style={styles.buttonPswd}
+            mode="contained"
+            style={styles.button}
             onPress={() => {
-              //TODO password forgotten component
+              passwordHash(credentials);
             }}
           >
-            Mot de passe oublié
+            Se Connecter
+          </Button>
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={() => {
+              navigate("Register");
+            }}
+          >
+            S'enregistrer
           </Button>
         </View>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => {
-            passwordHash(credentials);
-          }}
-        >
-          Se Connecter
-        </Button>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => {
-            navigate("Register");
-          }}
-        >
-          S'enregistrer
-        </Button>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </Portal.Host>
   );
 };
 
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
 
 const styles = StyleSheet.create({
   container: {
