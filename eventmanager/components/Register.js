@@ -40,12 +40,11 @@ const Register = props => {
   const [isInfoNotValid, setIsInfoNotValid] = useState(true);
   const [passwordHidden, setPasswordHidden] = useState(true);
 
-  //useEffect(_ => {}, [userInfo, isInfoNotValid]);
 
   const createUser = () => {
     let pass = sha256(userInfo.passwordHash);
-
     props.register(userInfo.username, pass, userInfo.mail, userInfo.hasCar);
+    
   };
 
   const fieldValidator = () => {
