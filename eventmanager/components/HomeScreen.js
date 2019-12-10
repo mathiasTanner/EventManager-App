@@ -6,7 +6,7 @@ import Map from "./Map";
 import { fetchEvents, fetchUser } from "../actions";
 
 const mapStateToProps = (state, ownProps) => {
-  return { token: state.app.token, user: state.user };
+  return { token: state.app.token, user: state.user, events: state.events };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
@@ -23,9 +23,14 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 const HomeScreen = props => {
   const { navigate } = props.navigation;
 
+  const [showMap, setShowMap] = useState(false);
+
   useEffect(() => {
     if (props.token !== "no token found" && props.token !== "") {
       props.getEvents(props.token);
+      if (props.events !== [] || props.events.events !== undefined) {
+        setShowMap(true);
+      }
     }
     if (props.user !== null && props.user.passwordHash == null) {
       props.getUserFromToken(props.token, props.user.username);
@@ -39,9 +44,7 @@ const HomeScreen = props => {
       ) : props.token == "no token found" ? (
         <Login error={true} navigation={props.navigation} />
       ) : (
-        <View style={styles.mainView}>
-          <Map />
-        </View>
+        <View style={styles.mainView}>{showMap ? <Map /> : null}</View>
       )}
     </View>
   );
