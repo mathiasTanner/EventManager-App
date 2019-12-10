@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { sha256 } from "js-sha256";
+import { createUser } from "../actions";
 import {
   StyleSheet,
   View,
@@ -20,7 +21,7 @@ import {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    createUser: (username, passwordHash, mail, hascar) =>
+    register: (username, passwordHash, mail, hascar) =>
       dispatch(createUser(username, passwordHash, mail, hascar))
   };
 };
@@ -31,75 +32,48 @@ const Register = props => {
     secondPass: "",
     passwordHash: "",
     mail: "",
-    hasCar: false,
-    isNotValid: true
+    hasCar: false
   });
-  const [isErrMsgVisible, setIsErrMsgVisible] = useState({
-    pswdLength: false,
-    pswdMatch: false,
-    mailValid: false
-  });
-  const [test, setTest] = useState(false);
+  const [pswdLengthVisible, setPswdLengthVisible] = useState(false);
+  const [pswdMatchVisible, setPswdMatchVisible] = useState(false);
+  const [mailValidVisible, setMailValidVisible] = useState(false);
+  const [isInfoNotValid, setIsInfoNotValid] = useState(true);
   const [passwordHidden, setPasswordHidden] = useState(true);
 
-  const passwordHash = () => {
+  //useEffect(_ => {}, [userInfo, isInfoNotValid]);
+
+  const createUser = () => {
     let pass = sha256(userInfo.passwordHash);
 
-    /*  props.createUser(
-      userInfo.username,
-      userInfo.passwordHash,
-      userInfo.mail,
-      userInfo.hasCar
-    ); */
+    props.register(userInfo.username, pass, userInfo.mail, userInfo.hasCar);
   };
 
   const fieldValidator = () => {
-    console.log("passwordHash:");
-    console.log(userInfo.passwordHash);
-    console.log(
-      userInfo.passwordHash !== "" && userInfo.passwordHash.length < 8
-    );
-    /* userInfo.passwordHash !== "" && userInfo.passwordHash.length < 8
-      ? (console.log("test"),
-        setIsErrMsgVisible({
-          ...isErrMsgVisible,
-          pswdLength: true
-        }))
-      : setIsErrMsgVisible({
-          ...isErrMsgVisible,
-          pswdLength: false
-        }); */
     if (userInfo.passwordHash !== "" && userInfo.passwordHash.length < 8) {
-      console.log("INSIDE CONDITION");
-      setIsErrMsgVisible({ ...isErrMsgVisible, mailValid: true });
-      setTest(true);
+      setPswdLengthVisible(true);
     } else {
-      setIsErrMsgVisible({
-        ...isErrMsgVisible,
-        pswdLength: false
-      });
+      setPswdLengthVisible(false);
     }
-    console.log(isErrMsgVisible.mailValid);
-
-    //console.log(isErrMsgVisible.pswdLength);
-    userInfo.secondPass !== "" && userInfo.passwordHash !== userInfo.secondPass
-      ? setIsErrMsgVisible({
-          ...isErrMsgVisible,
-          pswdMatch: true
-        })
-      : setIsErrMsgVisible({
-          ...isErrMsgVisible,
-          pswdMatch: false
-        });
+    userInfo.secondPass !== "" && userInfo.secondPass !== userInfo.passwordHash
+      ? setPswdMatchVisible(true)
+      : setPswdMatchVisible(false);
+    userInfo.mail !== "" &&
     !userInfo.mail.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)
-      ? setIsErrMsgVisible({
-          ...isErrMsgVisible,
-          mailValid: true
-        })
-      : setIsErrMsgVisible({
-          ...isErrMsgVisible,
-          mailValid: false
-        });
+      ? setMailValidVisible(true)
+      : setMailValidVisible(false);
+
+    if (
+      userInfo.username !== "" &&
+      userInfo.passwordHash !== "" &&
+      !pswdLengthVisible &&
+      !pswdMatchVisible &&
+      userInfo.mail !== "" &&
+      !mailValidVisible
+    ) {
+      setIsInfoNotValid(false);
+    } else {
+      setIsInfoNotValid(true);
+    }
   };
 
   return (
@@ -128,6 +102,10 @@ const Register = props => {
               value={userInfo.username}
               onChangeText={name => {
                 setUserInfo({ ...userInfo, username: name });
+                fieldValidator();
+              }}
+              onBlur={() => {
+                fieldValidator();
               }}
             />
             <TextInput
@@ -135,7 +113,6 @@ const Register = props => {
               mode="outlined"
               secureTextEntry={passwordHidden}
               value={userInfo.passwordHash}
-              style={styles.textBox}
               onChangeText={pass => {
                 setUserInfo({ ...userInfo, passwordHash: pass });
                 fieldValidator();
@@ -144,7 +121,7 @@ const Register = props => {
                 fieldValidator();
               }}
             />
-            {isErrMsgVisible.pswdLength ? (
+            {pswdLengthVisible ? (
               <HelperText type="error" visible={true}>
                 Le mot de passe doit faire au moins 8 caractères
               </HelperText>
@@ -158,6 +135,9 @@ const Register = props => {
                 style={styles.textBox}
                 onChangeText={pass => {
                   setUserInfo({ ...userInfo, secondPass: pass });
+                  fieldValidator();
+                }}
+                onBlur={() => {
                   fieldValidator();
                 }}
               />
@@ -178,7 +158,7 @@ const Register = props => {
                 />
               </TouchableOpacity>
             </View>
-            {isErrMsgVisible.pswdMatch ? (
+            {pswdMatchVisible ? (
               <HelperText type="error" visible={true}>
                 Les mots de passe ne correspondent pas
               </HelperText>
@@ -194,8 +174,11 @@ const Register = props => {
                 setUserInfo({ ...userInfo, mail: mail });
                 fieldValidator();
               }}
+              onBlur={() => {
+                fieldValidator();
+              }}
             />
-            {isErrMsgVisible.mailValid ? (
+            {mailValidVisible ? (
               <HelperText type="error" visible={true}>
                 Ce mail n'est pas valide
               </HelperText>
@@ -208,6 +191,7 @@ const Register = props => {
                 style={styles.switch}
                 onValueChange={hasCar => {
                   setUserInfo({ ...userInfo, hasCar });
+                  fieldValidator();
                 }}
               />
             </View>
@@ -216,9 +200,9 @@ const Register = props => {
                 mode="contained"
                 style={styles.button}
                 onPress={() => {
-                  passwordHash();
+                  createUser();
                 }}
-                disabled={userInfo.isNotValid}
+                disabled={isInfoNotValid}
               >
                 S'enregistrer
               </Button>
@@ -250,14 +234,14 @@ const styles = StyleSheet.create({
     flex: 3,
     marginTop: 20,
     margin: 5,
-    width: 270
+    width: 290
   },
   switchView: {
     margin: 10,
     flexDirection: "row"
   },
   switch: {
-    marginLeft: 50
+    marginLeft: 90
   },
   visibilityBtn: {
     top: 15,
@@ -266,7 +250,7 @@ const styles = StyleSheet.create({
     padding: 5
   },
   textBox: {
-    width: 245
+    width: 260
   },
   btnImage: {
     resizeMode: "contain",
