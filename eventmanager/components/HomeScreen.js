@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Dimensions } from "react-native";
+import { StyleSheet, View, Dimensions } from "react-native";
 import { connect } from "react-redux";
 import Login from "./Login";
 import Map from "./Map";
 import { fetchEvents, fetchUser } from "../actions";
+import { Text, Appbar, Menu, Divider, Modal } from "react-native-paper";
 
 const mapStateToProps = (state, ownProps) => {
   return { token: state.app.token, user: state.user, events: state.events };
@@ -24,6 +25,7 @@ const HomeScreen = props => {
   const { navigate } = props.navigation;
 
   const [showMap, setShowMap] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   useEffect(() => {
     if (props.token !== "no token found" && props.token !== "") {
@@ -37,6 +39,10 @@ const HomeScreen = props => {
     }
   }, [props.token, props.user]);
 
+  const _changeMenuVisibility = () => {
+    setIsMenuVisible(!isMenuVisible);
+  };
+
   return (
     <View style={styles.container}>
       {props.token == "" ? (
@@ -44,7 +50,41 @@ const HomeScreen = props => {
       ) : props.token == "no token found" ? (
         <Login error={true} navigation={props.navigation} />
       ) : (
-        <View style={styles.mainView}>{showMap ? <Map /> : null}</View>
+        <View style={styles.mainView}>
+          <Appbar.Header>
+            <Menu
+              visible={isMenuVisible}
+              onDismiss={() => _changeMenuVisibility()}
+              anchor={
+                <Appbar.Action
+                  icon="menu"
+                  onPress={() => _changeMenuVisibility()}
+                />
+              }
+            >
+              <Menu.Item
+                onPress={() => {
+                  console.log("profile");
+                }}
+                title="Profile"
+              />
+              <Menu.Item
+                onPress={() => {
+                  console.log("my events");
+                }}
+                title="Mes Évènements"
+              />
+              <Divider />
+              <Menu.Item
+                onPress={() => {
+                  console.log("all events");
+                }}
+                title="Tous les Évènements"
+              />
+            </Menu>
+          </Appbar.Header>
+          {showMap ? <Map /> : null}
+        </View>
       )}
     </View>
   );
