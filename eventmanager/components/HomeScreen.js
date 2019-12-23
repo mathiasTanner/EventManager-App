@@ -4,7 +4,14 @@ import { connect } from "react-redux";
 import Login from "./Login";
 import Map from "./Map";
 import { fetchEvents, fetchUser } from "../actions";
-import { Text, Appbar, Menu, Divider, Modal } from "react-native-paper";
+import {
+  Text,
+  Appbar,
+  Menu,
+  Divider,
+  Modal,
+  ThemeProvider
+} from "react-native-paper";
 
 const mapStateToProps = (state, ownProps) => {
   return { token: state.app.token, user: state.user, events: state.events };
@@ -83,7 +90,11 @@ const HomeScreen = props => {
               />
             </Menu>
           </Appbar.Header>
-          {showMap ? <Map /> : null}
+          {showMap ? (
+            <View style={styles.map}>
+              <Map />
+            </View>
+          ) : null}
         </View>
       )}
     </View>
@@ -100,6 +111,10 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   mainView: {
+    flex: 1,
+    backgroundColor: "#d11919"
+  },
+  map: {
     width: Math.round(Dimensions.get("window").width),
     height: Math.round(Dimensions.get("window").height)
   }

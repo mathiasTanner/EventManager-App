@@ -22,11 +22,6 @@ const LoadingScreen = props => {
               style={styles.card}
             />
           </Card>
-          <Image
-            style={{ flex: 1, height: undefined, width: undefined }}
-            source={require("../assets/loading.png")}
-            resizeMode="contain"
-          />
         </View>
       </Modal>
     </Portal>
