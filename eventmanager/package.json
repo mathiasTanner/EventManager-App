@@ -20,7 +20,7 @@
     "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-maps": "~0.25.0",
     "react-native-paper": "^3.2.1",
-    "react-native-reanimated": "~1.2.0",
+    "react-native-reanimated": "~2.10.0",
     "react-native-sha256": "^1.3.6",
     "react-native-web": "^0.11.7",
     "react-navigation": "^4.0.10",
